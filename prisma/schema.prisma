@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  nom               String
+  password          String
+  avatar            String?
+  emailVerified     Boolean   @default(false)
+  verificationToken String?   @unique
+  resetToken        String?   @unique
+  resetTokenExpiry  DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  stats             UserStats?
+  securityLogs      SecurityLog[]
+}
+
+model UserStats {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  totalMessages   Int      @default(0)
+  totalCheckups   Int      @default(0)
+  totalBoosts     Int      @default(0)
+  totalObjectifs  Int      @default(0)
+  lastActive      DateTime @default(now())
+  streak          Int      @default(0)
+  niveau          Int      @default(1)
+  xp              Int      @default(0)
+  badges          String[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model SecurityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventType String
+  details   String
+  ipAddress String?
+  createdAt DateTime @default(now())
+} 
